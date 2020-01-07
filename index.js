@@ -1,10 +1,11 @@
 const traversal = require('./src/traversal');
+const parse = require('json-to-ast');
 
 globalThis.lint = function(string) {
   if (typeof string !== 'string') return;
   try {
-    const json = JSON.parse(string);
-    traversal(json);
+    const ast = parse(string);
+    traversal(ast);
   } catch {
     console.log('Something went wrong');
   }
