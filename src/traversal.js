@@ -1,6 +1,4 @@
-const resolver = require('./resolver');
-
-const traversal = function(jsonAst) {
+function traversal(jsonAst, resolver) {
   const { type } = jsonAst;
   switch (type) {
     case 'Object':
@@ -8,23 +6,27 @@ const traversal = function(jsonAst) {
         return acc && child.key.value !== 'elem';
       }, true);
       if (isBlock) {
-        // TODO: resolver(jsonAst);
+        resolver(jsonAst);
       }
-      jsonAst.children.forEach(traversal);
+      jsonAst.children.forEach(function(child) {
+        traversal(child, resolver);
+      });
       break;
     case 'Property':
-      if (jsonAst.key.value === 'mix' || jsonAst.key.value === 'content') {
-        traversal(jsonAst.value);
+      if (jsonAst.key.value === 'content') {
+        traversal(jsonAst.value, resolver);
       }
       break;
     case 'Array':
-      jsonAst.children.forEach(traversal);
+      jsonAst.children.forEach(function(child) {
+        traversal(child, resolver);
+      });
       break;
     case 'Identifier':
     case 'Literal':
     default:
       break;
   }
-};
+}
 
 module.exports = traversal;

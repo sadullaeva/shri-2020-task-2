@@ -1,10 +1,12 @@
-const resolver = function(json) {
-  const { block, elem } = json;
+const getBlockName = require('./utils/getBlockName');
+const WarningValidator = require('./validators/warning');
 
-  if (elem) return;
-
+function resolver(jsonAst) {
+  const block = getBlockName(jsonAst);
   switch (block) {
     case 'warning':
+      const validator = new WarningValidator(jsonAst);
+      validator.validate();
       break;
     case 'text':
       break;
@@ -13,6 +15,6 @@ const resolver = function(json) {
     default:
       break;
   }
-};
+}
 
 module.exports = resolver;
