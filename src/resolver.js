@@ -4,14 +4,14 @@ const WarningValidator = require('./validators/warning');
 /**
  * Matches validator to block type
  * @param jsonAst is BEM block JSON that's represented as AST
- * @param errors is an array of linting errors
+ * @param state contains linting errors and common state
  */
-function resolver(jsonAst, errors = []) {
+function resolver(jsonAst, state) {
   const block = getBlockName(jsonAst);
   switch (block) {
     case 'warning':
-      const validator = new WarningValidator(jsonAst, errors);
-      validator.validate();
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
       break;
     case 'text':
       break;

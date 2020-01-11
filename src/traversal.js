@@ -3,10 +3,10 @@
  * function for BEM blocks
  * @param jsonAst is JSON that's represented as AST (Abstract Syntax Tree)
  * @param resolver is a function that matches validator to block type
- * @param errors is an array of linting errors
+ * @param state contains linting errors and common state
  */
 
-function traversal(jsonAst, resolver, errors = []) {
+function traversal(jsonAst, resolver, state) {
   const { type } = jsonAst;
   switch (type) {
     case 'Object':
@@ -14,20 +14,20 @@ function traversal(jsonAst, resolver, errors = []) {
         return acc && child.key.value !== 'elem';
       }, true);
       if (isBlock) {
-        resolver(jsonAst, errors);
+        resolver(jsonAst, state);
       }
       jsonAst.children.forEach(function(child) {
-        traversal(child, resolver);
+        traversal(child, resolver, state);
       });
       break;
     case 'Property':
       if (jsonAst.key.value === 'content') {
-        traversal(jsonAst.value, resolver);
+        traversal(jsonAst.value, resolver, state);
       }
       break;
     case 'Array':
       jsonAst.children.forEach(function(child) {
-        traversal(child, resolver);
+        traversal(child, resolver, state);
       });
       break;
     case 'Identifier':

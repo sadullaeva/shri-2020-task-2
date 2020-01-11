@@ -3,12 +3,12 @@ const getBlockName = require('../../utils/getBlockName');
 const sizes = require('../../const/sizes');
 
 class WarningValidator {
-  constructor(jsonAst, errors = []) {
+  constructor(jsonAst, state) {
     this.children = jsonAst.children;
     this.location =  jsonAst.loc;
     this.content = this.children.find(child => child.key.value === 'content');
 
-    this.errors = errors;
+    this.state = state;
 
     this.sizeStandard = undefined;
     this.placeholder = undefined;
@@ -18,8 +18,8 @@ class WarningValidator {
   validate() {
     const _this = this;
     if (this.content) {
-      this.content.value.children.forEach(function (nestedChild) {
-        traversal(nestedChild, _this.resolver);
+      this.content.value.children.forEach(function (child) {
+        traversal(child, _this.resolver);
       });
       _this.recheck.forEach(function (func) {
         func();
@@ -71,7 +71,7 @@ class WarningValidator {
           end: { column: end.column, line: end.line }
         }
       };
-      this.errors.push(error);
+      this.state.errors.push(error);
     }
   };
 
@@ -106,7 +106,7 @@ class WarningValidator {
           end: { column: end.column, line: end.line }
         }
       };
-      this.errors.push(error);
+      this.state.errors.push(error);
     }
   };
 
@@ -133,7 +133,7 @@ class WarningValidator {
             end: { column: btnEnd.column, line: btnEnd.line }
           }
         };
-        this.errors.push(error);
+        this.state.errors.push(error);
       }
     }
   };
@@ -162,7 +162,7 @@ class WarningValidator {
           end: { column: end.column, line: end.line }
         }
       };
-      this.errors.push(error);
+      this.state.errors.push(error);
     }
   };
 }
