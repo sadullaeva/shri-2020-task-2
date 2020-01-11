@@ -1,3 +1,11 @@
+/**
+ * Makes a recursive traversal of jsonAst object and calls resolver
+ * function for BEM blocks
+ * @param jsonAst is JSON that's represented as AST (Abstract Syntax Tree)
+ * @param resolver is a function that matches validator to block type
+ * @param errors is an array of linting errors
+ */
+
 function traversal(jsonAst, resolver, errors = []) {
   const { type } = jsonAst;
   switch (type) {
