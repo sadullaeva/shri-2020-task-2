@@ -1,5 +1,6 @@
 const traversal = require('../../traversal');
 const getBlockName = require('../../utils/getBlockName');
+const sizes = require('../../const/sizes');
 
 class WarningValidator {
   constructor(jsonAst, errors = []) {
@@ -27,6 +28,9 @@ class WarningValidator {
       case 'text':
         this.checkSameTextSize(obj);
         break;
+      case 'button':
+        this.checkButtonSize(obj);
+        break;
       default:
         break;
     }
@@ -52,6 +56,35 @@ class WarningValidator {
       const error = {
         code: 'WARNING.TEXT_SIZES_SHOULD_BE_EQUAL',
         error: 'Тексты в блоке warning должны быть одного размера',
+        location: {
+          start: { column: start.column, line: start.line },
+          end: { column: end.column, line: end.line }
+        }
+      };
+      this.errors.push(error);
+    }
+  };
+
+  checkButtonSize = (obj) => {
+    const { children = [] } = obj;
+    const mods = children.find(function(child) {
+      return child.key.value === 'mods';
+    });
+    let size = mods && mods.value.children.find(function(child) {
+      return child.key.value === 'size';
+    });
+    size = size.value.value;
+
+    if (!size) return;
+    if (!this.sizeStandard) return;
+
+    const index = sizes.indexOf(this.sizeStandard);
+    if (index === -1 && index === sizes.length - 1) return;
+    if (size !== sizes[index + 1]) {
+      const { start, end } = obj.loc;
+      const error = {
+        code: 'WARNING.INVALID_BUTTON_SIZE',
+        error: `Размер кнопки блока warning должен быть '${sizes[index + 1]}', что на 1 шаг больше эталонного размера текста '${sizes[index]}'`,
         location: {
           start: { column: start.column, line: start.line },
           end: { column: end.column, line: end.line }
