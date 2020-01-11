@@ -23,13 +23,15 @@ class TextValidator {
         const type = obj.value.value;
         switch (type) {
           case 'h1':
-            this.state.h1 = obj;
             this.checkNumberOfH1();
+            this.state.h1 = obj;
             break;
           case 'h2':
             this.checkPositionOfH2(obj, false);
+            this.state.h2 = obj;
             break;
           case 'h3':
+            this.checkPositionOfH3(obj, false);
             break;
           default:
             break;
@@ -41,9 +43,7 @@ class TextValidator {
   };
 
   checkNumberOfH1 = () => {
-    this.state.h1Count += 1;
-
-    if (this.state.h1Count > 1) {
+    if (this.state.h1) {
       const { start, end } = this.location;
       const error = {
         code: 'TEXT.SEVERAL_H1',
@@ -78,6 +78,34 @@ class TextValidator {
           location: {
             start: { column: h2Start.column, line: h2Start.line },
             end: { column: h2End.column, line: h2End.line }
+          }
+        };
+        this.state.errors.push(error);
+      }
+    }
+  };
+
+  checkPositionOfH3 = (obj, isRecheck) => {
+    if (!isRecheck) {
+      this.state.recheck.push(() => {
+        this.checkPositionOfH3(obj, true);
+      });
+      return;
+    }
+
+    if (!this.state.h2) return;
+
+    if (isRecheck) {
+      const { start : h2Start } = this.state.h2.loc;
+      const { start : h3Start, end : h3End } = obj.loc;
+
+      if ((h3End.line < h2Start.line) || (h3End.line === h2Start.line && h3End.column < h2Start.column)) {
+        const error = {
+          code: 'TEXT.INVALID_H3_POSITION',
+          error: 'Заголовок третьего уровня не может находиться перед заголовком второго уровня на том же или более глубоком уровне вложенности',
+          location: {
+            start: { column: h3Start.column, line: h3Start.line },
+            end: { column: h3End.column, line: h3End.line }
           }
         };
         this.state.errors.push(error);

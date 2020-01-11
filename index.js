@@ -8,7 +8,7 @@ globalThis.lint = function(string) {
     const ast = parse(string);
     const state = {
       h1: undefined,
-      h1Count: 0,
+      h2: undefined,
       errors: [],
       recheck: [],
     };
