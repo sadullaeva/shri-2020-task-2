@@ -7,10 +7,15 @@ globalThis.lint = function(string) {
   try {
     const ast = parse(string);
     const state = {
+      h1: undefined,
       h1Count: 0,
       errors: [],
+      recheck: [],
     };
     traversal(ast, resolver, state);
+    state.recheck.forEach(function (func) {
+      func();
+    });
   } catch {
     console.log('Something went wrong');
   }

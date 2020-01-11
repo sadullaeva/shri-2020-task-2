@@ -23,9 +23,11 @@ class TextValidator {
         const type = obj.value.value;
         switch (type) {
           case 'h1':
+            this.state.h1 = obj;
             this.checkNumberOfH1();
             break;
           case 'h2':
+            this.checkPositionOfH2(obj, false);
             break;
           case 'h3':
             break;
@@ -52,6 +54,34 @@ class TextValidator {
         }
       };
       this.state.errors.push(error);
+    }
+  };
+
+  checkPositionOfH2 = (obj, isRecheck) => {
+    if (!isRecheck) {
+      this.state.recheck.push(() => {
+        this.checkPositionOfH2(obj, true);
+      });
+      return;
+    }
+
+    if (!this.state.h1) return;
+
+    if (isRecheck) {
+      const { start : h1Start } = this.state.h1.loc;
+      const { start : h2Start, end : h2End } = obj.loc;
+
+      if ((h2End.line < h1Start.line) || (h2End.line === h1Start.line && h2End.column < h1Start.column)) {
+        const error = {
+          code: 'TEXT.INVALID_H2_POSITION',
+          error: 'Заголовок второго уровня не может находиться перед заголовком первого уровня на том же или более глубоком уровне вложенности',
+          location: {
+            start: { column: h2Start.column, line: h2Start.line },
+            end: { column: h2End.column, line: h2End.line }
+          }
+        };
+        this.state.errors.push(error);
+      }
     }
   };
 }

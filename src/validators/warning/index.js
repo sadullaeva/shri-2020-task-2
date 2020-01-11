@@ -12,7 +12,6 @@ class WarningValidator {
 
     this.sizeStandard = undefined;
     this.placeholder = undefined;
-    this.recheck = [];
   }
 
   validate() {
@@ -20,9 +19,6 @@ class WarningValidator {
     if (this.content) {
       this.content.value.children.forEach(function (child) {
         traversal(child, _this.resolver);
-      });
-      _this.recheck.forEach(function (func) {
-        func();
       });
     }
   }
@@ -77,7 +73,7 @@ class WarningValidator {
 
   checkButtonSize = (obj) => {
     if (!this.sizeStandard) {
-      this.recheck.push(() => {
+      this.state.recheck.push(() => {
         this.checkButtonSize(obj);
       });
       return;
@@ -112,7 +108,7 @@ class WarningValidator {
 
   checkButtonPlace = (obj, isRecheck) => {
     if (!isRecheck) {
-      this.recheck.push(() => {
+      this.state.recheck.push(() => {
         this.checkButtonPlace(obj, true);
       });
       return;
