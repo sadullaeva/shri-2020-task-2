@@ -11,6 +11,7 @@ class WarningValidator {
     this.errors = errors;
 
     this.sizeStandard = undefined;
+    this.placeholder = undefined;
     this.recheck = [];
   }
 
@@ -34,6 +35,10 @@ class WarningValidator {
         break;
       case 'button':
         this.checkButtonSize(obj);
+        this.checkButtonPlace(obj, false);
+        break;
+      case 'placeholder':
+        this.placeholder = obj;
         break;
       default:
         break;
@@ -101,6 +106,35 @@ class WarningValidator {
         }
       };
       this.errors.push(error);
+    }
+  };
+
+  checkButtonPlace = (obj, isRecheck) => {
+    if (!isRecheck) {
+      this.recheck.push(() => {
+        this.checkButtonPlace(obj, true);
+      });
+      return;
+    }
+
+    if (!this.placeholder) return;
+
+    if (isRecheck) {
+      const { start : btnStart, end : btnEnd } = obj.loc;
+      const { start : phrStart } = this.placeholder.loc;
+
+      if ((btnEnd.line < phrStart.line) || (btnEnd.line === phrStart.line && btnEnd.column < phrStart.column)) {
+        const error = {
+          code: 'WARNING.INVALID_BUTTON_POSITION',
+          error: 'Блок button в блоке warning не может находиться перед блоком placeholder на том же или более глубоком уровне вложенности',
+          location: {
+            start: { column: btnStart.column, line: btnStart.line },
+            end: { column: btnEnd.column, line: btnEnd.line }
+          }
+        };
+        this.errors.push(error);
+
+      }
     }
   };
 }
