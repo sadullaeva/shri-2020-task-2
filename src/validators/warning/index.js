@@ -11,6 +11,7 @@ class WarningValidator {
     this.errors = errors;
 
     this.sizeStandard = undefined;
+    this.recheck = [];
   }
 
   validate() {
@@ -18,6 +19,9 @@ class WarningValidator {
     if (this.content) {
       this.content.value.children.forEach(function (nestedChild) {
         traversal(nestedChild, _this.resolver);
+      });
+      _this.recheck.forEach(function (func) {
+        func();
       });
     }
   }
@@ -66,6 +70,13 @@ class WarningValidator {
   };
 
   checkButtonSize = (obj) => {
+    if (!this.sizeStandard) {
+      this.recheck.push(() => {
+        this.checkButtonSize(obj);
+      });
+      return;
+    }
+
     const { children = [] } = obj;
     const mods = children.find(function(child) {
       return child.key.value === 'mods';
@@ -76,7 +87,6 @@ class WarningValidator {
     size = size.value.value;
 
     if (!size) return;
-    if (!this.sizeStandard) return;
 
     const index = sizes.indexOf(this.sizeStandard);
     if (index === -1 && index === sizes.length - 1) return;
@@ -92,7 +102,7 @@ class WarningValidator {
       };
       this.errors.push(error);
     }
-  }
+  };
 }
 
 module.exports = WarningValidator;
