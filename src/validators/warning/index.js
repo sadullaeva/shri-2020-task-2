@@ -39,6 +39,7 @@ class WarningValidator {
         break;
       case 'placeholder':
         this.placeholder = obj;
+        this.checkPlaceholderSize(obj);
         break;
       default:
         break;
@@ -133,8 +134,35 @@ class WarningValidator {
           }
         };
         this.errors.push(error);
-
       }
+    }
+  };
+
+  checkPlaceholderSize = (obj) => {
+    const { children = [] } = obj;
+    const validSizes = ['s', 'm', 'l'];
+
+    const mods = children.find(function(child) {
+      return child.key.value === 'mods';
+    });
+    let size = mods && mods.value.children.find(function(child) {
+      return child.key.value === 'size';
+    });
+    size = size.value.value;
+
+    if (!size) return;
+
+    if (!validSizes.includes(size)) {
+      const { start, end } = obj.loc;
+      const error = {
+        code: 'WARNING.INVALID_PLACEHOLDER_SIZE',
+        error: 'Недопустимые размеры для блока placeholder в блоке warning. Допустимые размеры: s, m, l.',
+        location: {
+          start: { column: start.column, line: start.line },
+          end: { column: end.column, line: end.line }
+        }
+      };
+      this.errors.push(error);
     }
   };
 }
