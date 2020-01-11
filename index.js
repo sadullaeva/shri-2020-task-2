@@ -6,7 +6,8 @@ globalThis.lint = function(string) {
   if (typeof string !== 'string') return;
   try {
     const ast = parse(string);
-    traversal(ast, resolver);
+    const errors = [];
+    traversal(ast, resolver, errors);
   } catch {
     console.log('Something went wrong');
   }

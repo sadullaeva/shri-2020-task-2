@@ -1,4 +1,4 @@
-function traversal(jsonAst, resolver) {
+function traversal(jsonAst, resolver, errors = []) {
   const { type } = jsonAst;
   switch (type) {
     case 'Object':
@@ -6,7 +6,7 @@ function traversal(jsonAst, resolver) {
         return acc && child.key.value !== 'elem';
       }, true);
       if (isBlock) {
-        resolver(jsonAst);
+        resolver(jsonAst, errors);
       }
       jsonAst.children.forEach(function(child) {
         traversal(child, resolver);

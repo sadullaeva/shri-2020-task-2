@@ -2,12 +2,12 @@ const traversal = require('../../traversal');
 const getBlockName = require('../../utils/getBlockName');
 
 class WarningValidator {
-  constructor(props) {
-    this.children = props.children;
-    this.location =  props.loc;
+  constructor(jsonAst, errors = []) {
+    this.children = jsonAst.children;
+    this.location =  jsonAst.loc;
     this.content = this.children.find(child => child.key.value === 'content');
 
-    this.errors = [];
+    this.errors = errors;
 
     this.sizeStandard = undefined;
   }
