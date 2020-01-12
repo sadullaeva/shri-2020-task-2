@@ -1,6 +1,7 @@
 const getBlockName = require('./utils/getBlockName');
 const WarningValidator = require('./validators/warning');
 const TextValidator = require('./validators/text');
+const GridValidator = require('./validators/grid');
 
 /**
  * Matches validator to block type
@@ -19,6 +20,8 @@ function resolver(jsonAst, state) {
       textValidator.validate();
       break;
     case 'grid':
+      const gridValidator = new GridValidator(jsonAst, state);
+      gridValidator.validate();
       break;
     default:
       break;
