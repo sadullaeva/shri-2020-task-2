@@ -307,6 +307,44 @@ describe('WarningValidator', () => {
   });
 
   describe('checkPlaceholderSize', () => {
+    test('placeholder has valid size', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "placeholder", "mods": { "size": "m" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(0);
+    });
 
+    test('placeholder has invalid size', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "placeholder", "mods": { "size": "xl" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(1);
+      expect(state.errors).toMatchObject([
+        {
+          code: 'WARNING.INVALID_PLACEHOLDER_SIZE',
+          location: { start: { column: 15, line: 7 }, end: { column: 67, line: 7 } }
+        }
+      ]);
+    });
   });
 });
