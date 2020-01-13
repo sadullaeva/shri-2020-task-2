@@ -209,7 +209,101 @@ describe('WarningValidator', () => {
   });
 
   describe('checkButtonPlace', () => {
+    test('button after placeholder', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "placeholder", "mods": { "size": "m" } },
+              { "block": "button", "mods": { "size": "xxl" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(0);
+    });
 
+    test('button before placeholder', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "button", "mods": { "size": "xxl" } },
+              { "block": "placeholder", "mods": { "size": "m" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      state.recheck.forEach(func => func());
+      expect(state.errors).toHaveLength(1);
+      expect(state.errors).toMatchObject([
+        {
+          code: 'WARNING.INVALID_BUTTON_POSITION',
+          location: { start: { column: 15, line: 7 }, end: { column: 63, line: 7 } }
+        }
+      ]);
+    });
+
+    test('button between 2 placeholders', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "placeholder", "mods": { "size": "m" } },
+              { "block": "button", "mods": { "size": "xxl" } },
+              { "block": "placeholder", "mods": { "size": "m" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      state.recheck.forEach(func => func());
+      expect(state.errors).toHaveLength(1);
+      expect(state.errors).toMatchObject([
+        {
+          code: 'WARNING.INVALID_BUTTON_POSITION',
+          location: { start: { column: 15, line: 8 }, end: { column: 63, line: 8 } }
+        }
+      ]);
+    });
+
+    test('button before placeholder but deeper', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "section", "content": [
+                { "block": "button", "mods": { "size": "xxl" } }
+              ]},
+              { "block": "placeholder", "mods": { "size": "m" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      state.recheck.forEach(func => func());
+      expect(state.errors).toHaveLength(1);
+      expect(state.errors).toMatchObject([
+        {
+          code: 'WARNING.INVALID_BUTTON_POSITION',
+          location: { start: { column: 17, line: 8 }, end: { column: 65, line: 8 } }
+        }
+      ]);
+    });
   });
 
   describe('checkPlaceholderSize', () => {
