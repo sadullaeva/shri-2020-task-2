@@ -21,7 +21,7 @@ function traversal(jsonAst, resolver, state) {
       });
       break;
     case 'Property':
-      if (jsonAst.key.value === 'content') {
+      if (jsonAst.key.value === 'content' || jsonAst.key.value === 'mix') {
         traversal(jsonAst.value, resolver, state);
       }
       break;
