@@ -2,6 +2,16 @@ const parse = require('json-to-ast');
 const WarningValidator = require('./index');
 
 describe('WarningValidator', () => {
+  let state;
+
+  beforeEach(() => {
+    state = { errors: [], recheck: [] };
+  });
+
+  afterEach(() => {
+    state = null;
+  });
+
   describe('checkSameTextSize', () => {
     test('all texts have the same size', () => {
       const jsonAst = parse(`{
@@ -16,7 +26,6 @@ describe('WarningValidator', () => {
           }
         ]
       }`);
-      const state = { errors: [], recheck: [] };
       const warningValidator = new WarningValidator(jsonAst, state);
       warningValidator.validate();
       expect(state.errors).toHaveLength(0);
@@ -35,7 +44,6 @@ describe('WarningValidator', () => {
           }
         ]
       }`);
-      const state = { errors: [], recheck: [] };
       const warningValidator = new WarningValidator(jsonAst, state);
       warningValidator.validate();
       expect(state.errors).toHaveLength(1);
@@ -60,7 +68,6 @@ describe('WarningValidator', () => {
           }
         ]
       }`);
-      const state = { errors: [], recheck: [] };
       const warningValidator = new WarningValidator(jsonAst, state);
       warningValidator.validate();
       expect(state.errors).toHaveLength(1);
@@ -85,7 +92,6 @@ describe('WarningValidator', () => {
           }
         ]
       }`);
-      const state = { errors: [], recheck: [] };
       const warningValidator = new WarningValidator(jsonAst, state);
       warningValidator.validate();
       expect(state.errors).toHaveLength(1);
@@ -99,7 +105,107 @@ describe('WarningValidator', () => {
   });
 
   describe('checkButtonSize', () => {
+    test('button size one step larger than standard text size (button after text)', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "text", "mods": { "size": "l" } },
+              { "block": "button", "mods": { "size": "xl" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(0);
+    });
 
+    test('button size one step larger than standard text size (button before text)', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "button", "mods": { "size": "xl" } },
+              { "block": "text", "mods": { "size": "l" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(0);
+    });
+
+    test('button size does not depend on standard text size (button after text)', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "text", "mods": { "size": "l" } },
+              { "block": "button", "mods": { "size": "xxl" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(1);
+      expect(state.errors).toMatchObject([
+        {
+          code: 'WARNING.INVALID_BUTTON_SIZE',
+          location: { start: { column: 15, line: 8 }, end: { column: 63, line: 8 } }
+        }
+      ]);
+    });
+
+    test('button size does not depend on standard text size (button before text)', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "button", "mods": { "size": "xxl" } },
+              { "block": "text", "mods": { "size": "l" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.sizeStandard = 'l';
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(1);
+      expect(state.errors).toMatchObject([
+        {
+          code: 'WARNING.INVALID_BUTTON_SIZE',
+          location: { start: { column: 15, line: 7 }, end: { column: 63, line: 7 } }
+        }
+      ]);
+    });
+
+    test('standard text size is not defined', () => {
+      const jsonAst = parse(`{
+        "block": "warning",
+        "content": [
+          {
+            "elem": "content",
+            "content": [
+              { "block": "button", "mods": { "size": "xxl" } }
+            ]
+          }
+        ]
+      }`);
+      const warningValidator = new WarningValidator(jsonAst, state);
+      warningValidator.validate();
+      expect(state.errors).toHaveLength(0);
+    });
   });
 
   describe('checkButtonPlace', () => {
