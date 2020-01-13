@@ -69,7 +69,7 @@ class TextValidator {
 
     if (isRecheck) {
       const { start : h1Start } = this.state.h1.loc;
-      const { start : h2Start, end : h2End } = obj.loc;
+      const { start : h2Start, end : h2End } = this.location;
 
       if ((h2End.line < h1Start.line) || (h2End.line === h1Start.line && h2End.column < h1Start.column)) {
         const error = {
@@ -97,7 +97,7 @@ class TextValidator {
 
     if (isRecheck) {
       const { start : h2Start } = this.state.h2.loc;
-      const { start : h3Start, end : h3End } = obj.loc;
+      const { start : h3Start, end : h3End } = this.location;
 
       if ((h3End.line < h2Start.line) || (h3End.line === h2Start.line && h3End.column < h2Start.column)) {
         const error = {
