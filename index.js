@@ -20,5 +20,3 @@ globalThis.lint = function(string) {
     console.log('Something went wrong');
   }
 };
-
-// globalThis.lint();
