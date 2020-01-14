@@ -8,6 +8,7 @@ class GridValidator {
     const { content, mods } = this.children.reduce((acc, child) => {
       if (child.key.value === 'content') acc.content = child;
       if (child.key.value === 'mods') acc.mods = child;
+      return acc;
     }, { content: undefined, mods: undefined });
     this.content = content;
     this.mods = mods;
@@ -29,7 +30,7 @@ class GridValidator {
     }
     if (this.marketingColNum) {
       this.state.recheck.push(() => {
-        this.checkNumberOfMarketingBlocks(null, true);
+        this.checkPartOfMarketingBlocks(null, true);
       });
     }
   }
@@ -47,18 +48,18 @@ class GridValidator {
       return acc;
     }, { mCol: undefined, block: undefined });
 
-    const blockName = getBlockName(block);
+    const blockName = block.type === 'Object' ? getBlockName(block) : block.value.value;
     switch (blockName) {
       case 'commercial':
       case 'offer':
-        this.checkNumberOfMarketingBlocks(mCol, false);
+        this.checkPartOfMarketingBlocks(mCol, false);
         break;
       default:
         break;
     }
   };
 
-  checkNumberOfMarketingBlocks = (mCol, isRecheck) => {
+  checkPartOfMarketingBlocks = (mCol, isRecheck) => {
     if (!isRecheck) {
       if (!mCol) return;
       this.marketingColNum += parseInt(mCol);
