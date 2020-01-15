@@ -4,14 +4,15 @@ const parse = require('json-to-ast');
 
 globalThis.lint = function(string) {
   if (typeof string !== 'string') return;
+  const state = {
+    h1: undefined,
+    h2: undefined,
+    errors: [],
+    recheck: [],
+  };
+
   try {
     const ast = parse(string);
-    const state = {
-      h1: undefined,
-      h2: undefined,
-      errors: [],
-      recheck: [],
-    };
     traversal(ast, resolver, state);
     state.recheck.forEach(function (func) {
       func();
@@ -19,4 +20,6 @@ globalThis.lint = function(string) {
   } catch {
     console.log('Something went wrong');
   }
+
+  return state.errors;
 };
