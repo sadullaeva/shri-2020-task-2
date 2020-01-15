@@ -18,8 +18,10 @@ globalThis.lint = function(string) {
       func();
     });
   } catch {
-    console.log('Something went wrong');
+    throw new Error('Something went wrong');
   }
 
   return state.errors;
 };
+
+module.exports = globalThis.lint;

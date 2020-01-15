@@ -144,7 +144,7 @@ class WarningValidator {
     let size = mods && mods.value.children.find(function(child) {
       return child.key.value === 'size';
     });
-    size = size.value.value;
+    size = size && size.value.value;
 
     if (!size) return;
 
